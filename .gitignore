@@ -58,3 +58,6 @@ servroot/
 
 # User-specific stuff
 test/api/generate_expected_fixtures.cpp
+
+# DS_Store
+.DS_Store
