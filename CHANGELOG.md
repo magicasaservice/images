@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ## [Current trunk] - started 2019-09-01
 
-Requires libvips 8.9+.
+Requires libvips 8.12+.
 
 ### Added
 - Support for true streaming ([#225](https://github.com/weserv/images/pull/225)).
@@ -44,7 +44,7 @@ Requires libvips 8.9+.
 - Attempt to decode corrupted or invalid images ([#194](https://github.com/weserv/images/issues/194)).
 - Docker image improvements ([#215](https://github.com/weserv/images/pull/215), [#216](https://github.com/weserv/images/pull/216), [#230](https://github.com/weserv/images/pull/230) and [#283](https://github.com/weserv/images/pull/283)).
 - Return an error when the maximum number of pages is exceeded ([#243](https://github.com/weserv/images/issues/243)).
-- Bump minimum required libvips version to 8.9.
+- Bump minimum required libvips version to 8.12.
 - Allow arbitrary values for the max-age parameter ([#292](https://github.com/weserv/images/issues/292)).
 - Increase rate limit quota to 2500 requests per 10 minutes ([#196](https://github.com/weserv/images/issues/196)).
 - The name of the project, CLI and shared library name (`imagesweserv` -> `weserv`).
@@ -206,7 +206,7 @@ With the magical help of [libvips](https://github.com/libvips/libvips) and the P
 - A Docker image for easier deployment. See the [Docker installation instructions](docker/README.md).
 
 ### Changed
-- Dropped [Intervention Image](http://image.intervention.io/) in favor of [php-vips](https://github.com/libvips/php-vips) because resizing an image with [libvips](https://github.com/libvips/libvips) is typically 4x-5x faster than using the quickest ImageMagick.
+- Dropped [Intervention Image](https://image.intervention.io/) in favor of [php-vips](https://github.com/libvips/php-vips) because resizing an image with [libvips](https://github.com/libvips/libvips) is typically 4x-5x faster than using the quickest ImageMagick.
 - We're now using the [uri package](https://github.com/thephpleague/uri) in order to parse URIs correctly. This is a drop-in replacement to PHP’s `parse_url` function.
 
 ### Deprecated
@@ -226,7 +226,7 @@ This version was never used in production, it's only used for testing purposes, 
 ### Added
 - Add CHANGELOG.md based on [’Keep a CHANGELOG’](https://github.com/olivierlacan/keep-a-changelog).
 - Composer ready and [PSR-2](https://www.php-fig.org/psr/psr-2/) compliant.
-- Used the [Intervention Image](http://image.intervention.io/) library for image handling and manipulation.
+- Used the [Intervention Image](https://image.intervention.io/) library for image handling and manipulation.
 - Used the [Guzzle](https://github.com/guzzle/guzzle) library for sending HTTP requests.
 
 ## [1.0.0] - started 2007-09-10

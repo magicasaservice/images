@@ -1,11 +1,12 @@
 #include "thumbnail.h"
 
 #include "../exceptions/large.h"
+#include "../io/blob.h"
+#include "../utils/utility.h"
 
 #include <algorithm>
 #include <cmath>
 #include <string>
-#include <tuple>
 
 namespace weserv::api::processors {
 
@@ -16,72 +17,37 @@ using enums::ImageType;
 // shrink-on-load feature. You can set this to false for more
 // consistent results and to avoid occasional small image shifting.
 // NOTE: Can be overridden with `&fsol=0`.
-const bool FAST_SHRINK_ON_LOAD = true;
+constexpr bool FAST_SHRINK_ON_LOAD = true;
 
+using io::Blob;
 using io::Source;
 
 template <>
 VImage
 Thumbnail::new_from_source<ImageType::Jpeg>(const Source &source,
                                             vips::VOption *options) const {
-#ifdef WESERV_ENABLE_TRUE_STREAMING
     return VImage::jpegload_source(source, options);
-#else
-    // We don't take a copy of the data or free it
-    auto *blob =
-        vips_blob_new(nullptr, source.buffer().data(), source.buffer().size());
-    auto image = VImage::jpegload_buffer(blob, options);
-    vips_area_unref(reinterpret_cast<VipsArea *>(blob));
-    return image;
-#endif
 }
 
 template <>
 VImage
 Thumbnail::new_from_source<ImageType::Pdf>(const Source &source,
                                            vips::VOption *options) const {
-#ifdef WESERV_ENABLE_TRUE_STREAMING
     return VImage::pdfload_source(source, options);
-#else
-    // We don't take a copy of the data or free it
-    auto *blob =
-        vips_blob_new(nullptr, source.buffer().data(), source.buffer().size());
-    auto image = VImage::pdfload_buffer(blob, options);
-    vips_area_unref(reinterpret_cast<VipsArea *>(blob));
-    return image;
-#endif
 }
 
 template <>
 VImage
 Thumbnail::new_from_source<ImageType::Webp>(const Source &source,
                                             vips::VOption *options) const {
-#ifdef WESERV_ENABLE_TRUE_STREAMING
     return VImage::webpload_source(source, options);
-#else
-    // We don't take a copy of the data or free it
-    auto *blob =
-        vips_blob_new(nullptr, source.buffer().data(), source.buffer().size());
-    auto image = VImage::webpload_buffer(blob, options);
-    vips_area_unref(reinterpret_cast<VipsArea *>(blob));
-    return image;
-#endif
 }
 
 template <>
 VImage
 Thumbnail::new_from_source<ImageType::Tiff>(const Source &source,
                                             vips::VOption *options) const {
-#ifdef WESERV_ENABLE_TRUE_STREAMING
     return VImage::tiffload_source(source, options);
-#else
-    // We don't take a copy of the data or free it
-    auto *blob =
-        vips_blob_new(nullptr, source.buffer().data(), source.buffer().size());
-    auto image = VImage::tiffload_buffer(blob, options);
-    vips_area_unref(reinterpret_cast<VipsArea *>(blob));
-    return image;
-#endif
 }
 
 // TODO(kleisauke): Support whole-slide images(?)
@@ -89,44 +55,21 @@ Thumbnail::new_from_source<ImageType::Tiff>(const Source &source,
 VImage
 Thumbnail::new_from_source<ImageType::OpenSlide>(const Source &source,
                                                  vips::VOption *options) const {
-#ifdef WESERV_ENABLE_TRUE_STREAMING
     return VImage::openslideload_source(source, options);
-#else
-    // openslideload_buffer is not available
-    return nullptr;
-#endif
 }*/
 
 template <>
 VImage
 Thumbnail::new_from_source<ImageType::Svg>(const Source &source,
                                            vips::VOption *options) const {
-#ifdef WESERV_ENABLE_TRUE_STREAMING
     return VImage::svgload_source(source, options);
-#else
-    // We don't take a copy of the data or free it
-    auto *blob =
-        vips_blob_new(nullptr, source.buffer().data(), source.buffer().size());
-    auto image = VImage::svgload_buffer(blob, options);
-    vips_area_unref(reinterpret_cast<VipsArea *>(blob));
-    return image;
-#endif
 }
 
 template <>
 VImage
 Thumbnail::new_from_source<ImageType::Heif>(const Source &source,
                                             vips::VOption *options) const {
-#ifdef WESERV_ENABLE_TRUE_STREAMING
     return VImage::heifload_source(source, options);
-#else
-    // We don't take a copy of the data or free it
-    auto *blob =
-        vips_blob_new(nullptr, source.buffer().data(), source.buffer().size());
-    auto image = VImage::heifload_buffer(blob, options);
-    vips_area_unref(reinterpret_cast<VipsArea *>(blob));
-    return image;
-#endif
 }
 
 std::pair<double, double> Thumbnail::resolve_shrink(int width,
@@ -196,10 +139,7 @@ std::pair<double, double> Thumbnail::resolve_shrink(int width,
 }
 
 double Thumbnail::resolve_common_shrink(int width, int height) const {
-    double hshrink;
-    double vshrink;
-
-    std::tie(hshrink, vshrink) = resolve_shrink(width, height);
+    auto [hshrink, vshrink] = resolve_shrink(width, height);
 
     return std::min(hshrink, vshrink);
 }
@@ -311,14 +251,7 @@ int Thumbnail::resolve_tiff_pyramid(const VImage &image, const Source &source,
 
 void Thumbnail::append_page_options(vips::VOption *options) const {
     auto n = query_->get<int>("n");
-    auto page = query_->get_if<int>(
-        "page",
-        [](int p) {
-            // Page needs to be in the range of
-            // 0 (numbered from zero) - 100000
-            return p >= 0 && p <= 100000;
-        },
-        0);
+    auto page = query_->get<int>("page");
 
     options->set("n", n);
     options->set("page", page);
@@ -430,11 +363,8 @@ VImage Thumbnail::process(const VImage &image) const {
     int thumb_width = thumb.width();
     int thumb_height = thumb.height();
 
-    double hshrink;
-    double vshrink;
-
     // Shrink to page_height, so we work for multi-page images
-    std::tie(hshrink, vshrink) = resolve_shrink(thumb_width, page_height);
+    auto [hshrink, vshrink] = resolve_shrink(thumb_width, page_height);
 
     auto target_width =
         static_cast<int>(std::rint(static_cast<double>(thumb_width) / hshrink));
@@ -486,14 +416,9 @@ VImage Thumbnail::process(const VImage &image) const {
 
     // Colour management.
     if (has_icc_profile) {
-#if VIPS_VERSION_AT_LEAST(8, 11, 0)
         // Ensure images with P3 profiles retain full gamut.
         const char *processing_profile =
             image.interpretation() == VIPS_INTERPRETATION_RGB16 ? "p3" : "srgb";
-#else
-        // P3 fallback built-in profile not available.
-        const char *processing_profile = "srgb";
-#endif
 
         // If there's some kind of import profile, we can transform to the
         // output.

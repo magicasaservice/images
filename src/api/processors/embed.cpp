@@ -30,7 +30,7 @@ VImage Embed::embed_multi_page(const VImage &image, int left, int top,
         pages.reserve(n_pages);
 
         // Rearrange the tall image into a vertical grid
-        VImage wide = image.grid(page_height, n_pages, 1);
+        auto wide = image.grid(page_height, n_pages, 1);
 
         // Do the embed on the wide image
         wide = wide.embed(0, top, wide.width(), height,
@@ -43,14 +43,11 @@ VImage Embed::embed_multi_page(const VImage &image, int left, int top,
             pages.push_back(wide.extract_area(width * i, 0, width, height));
         }
 
-        // Reassemble the frames into a tall, thin image
-        VImage assembled =
-            VImage::arrayjoin(pages, VImage::option()->set("across", 1));
-
         // Update the page height
         query_->update("page_height", height);
 
-        return assembled;
+        // Reassemble the frames into a tall, thin image
+        return VImage::arrayjoin(pages, VImage::option()->set("across", 1));
     }
     // Embedding will always hit the above code paths, below is for reference
     // only and excluded for code coverage
@@ -59,10 +56,12 @@ VImage Embed::embed_multi_page(const VImage &image, int left, int top,
     std::vector<VImage> pages;
     pages.reserve(n_pages);
 
+    auto crop = utils::stay_sequential(image, config_.process_timeout);
+
     // Split the image into frames
     for (int i = 0; i < n_pages; i++) {
         pages.push_back(
-            image.extract_area(0, page_height * i, image.width(), page_height));
+            crop.extract_area(0, page_height * i, crop.width(), page_height));
     }
 
     // Embed each frame in the target size
@@ -73,14 +72,11 @@ VImage Embed::embed_multi_page(const VImage &image, int left, int top,
                                       ->set("background", background));
     }
 
-    // Reassemble the frames into a tall, thin image
-    VImage assembled =
-        VImage::arrayjoin(pages, VImage::option()->set("across", 1));
-
     // Update the page height
     query_->update("page_height", height);
 
-    return assembled;
+    // Reassemble the frames into a tall, thin image
+    return VImage::arrayjoin(pages, VImage::option()->set("across", 1));
     // LCOV_EXCL_STOP
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../io/blob.h"
 #include "../io/source.h"
 #include "../io/target.h"
 #include "base.h"
@@ -13,8 +14,8 @@ namespace weserv::api::processors {
 
 class Stream {
  public:
-    Stream(std::shared_ptr<parsers::Query> query, const Config &config)
-        : query_(std::move(query)), config_(config) {}
+    Stream(const std::unique_ptr<parsers::Query> &query, const Config &config)
+        : query_(query), config_(config) {}
 
     VImage new_from_source(const io::Source &source) const;
 
@@ -24,7 +25,7 @@ class Stream {
     /**
      * Query holder.
      */
-    const std::shared_ptr<parsers::Query> query_;
+    const std::unique_ptr<parsers::Query> &query_;
 
     /**
      * Global config.
@@ -32,28 +33,29 @@ class Stream {
     const Config &config_;
 
     /**
-     * Finds the largest/smallest page in the range [0, VIPS_META_N_PAGES].
+     * Finds the largest/smallest page in the range [0, n_pages].
      * Pages are compared using the given comparison function.
      * See: https://github.com/weserv/images/issues/170.
-     * @tparam T Comparison type.
+     * @tparam Comparator Comparison type.
+     * @param image The source image.
+     * @param n_pages Number of pages in the image.
      * @param source Source to read from.
+     * @param blob (Fallback-)blob to read from.
      * @param loader Image loader.
      * @param comp Comparison function object.
-     * @return The largest/smallest page in the range [0, VIPS_META_N_PAGES].
+     * @return The largest/smallest page in the range [0, n_pages].
      */
     template <typename Comparator>
-    int resolve_page(const io::Source &source, const std::string &loader,
+    int resolve_page(const VImage &image, int n_pages, const io::Source &source,
+                     const io::Blob &blob, const std::string &loader,
                      Comparator comp) const;
 
     /**
-     * Get the page options for a specified loader to pass on
-     * to the load operation.
-     * @param source Source to read from.
-     * @param loader Image loader.
+     * Get the page options to pass on to the load operation.
+     * @param n_pages Number of pages in the image.
      * @return Any options to pass on to the load operation
      */
-    std::pair<int, int> get_page_load_options(const io::Source &souce,
-                                              const std::string &loader) const;
+    std::pair<int, int> get_page_load_options(int n_pages) const;
 
     /**
      * Load a formatted image from a source.
@@ -62,12 +64,15 @@ class Stream {
      *       It will throw a `UnreadableImageException` if an error occurs
      *       during loading.
      * @param source Source to read from.
+     * @param blob (Fallback-)blob to read from.
      * @param loader Image loader.
      * @param options Any options to pass on to the load operation.
      * @return A new `VImage`.
      */
-    VImage new_from_source(const io::Source &source, const std::string &loader,
-                           vips::VOption *options) const;
+    static VImage new_from_source(const io::Source &source,
+                                  const io::Blob &blob,
+                                  const std::string &loader,
+                                  vips::VOption *options);
 
     /**
      * Resolve/validate the query parameters based on the given image.

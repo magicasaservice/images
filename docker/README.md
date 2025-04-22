@@ -2,7 +2,7 @@
 
 This document describes how to use weserv/images with Docker.
 
-## Hosted image on [GitHub Container Registry](https://github.com/orgs/weserv/packages/container/package/images)
+## Hosted image on [GitHub Container Registry](https://github.com/weserv/images/pkgs/container/images)
 
 1. Pull and run the `ghcr.io/weserv/images` container.
    ```bash
@@ -18,7 +18,7 @@ This document describes how to use weserv/images with Docker.
 
 1. Build the container (with a specified nginx version).
    ```bash
-   docker build --build-arg NGINX_VERSION=1.25.3 -t weserv/images -f docker/Dockerfile .
+   docker build --build-arg NGINX_VERSION=1.27.4 -t weserv/images -f docker/Dockerfile .
    ```
 
 2. Run the container (same as above, but using the recently built tag).

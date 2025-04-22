@@ -1,17 +1,17 @@
 # Based on:
-# https://hg.nginx.org/pkg-oss/file/tip/alpine/Makefile
+# https://github.com/nginx/pkg-oss/blob/master/alpine/Makefile
 # https://github.com/nginxinc/docker-nginx/blob/master/mainline/alpine/Dockerfile
-FROM alpine:3.19
+FROM alpine:3.21
 
 LABEL maintainer="Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
-ARG NGINX_VERSION=1.25.3
+ARG NGINX_VERSION=1.27.4
 
 # Copy the contents of this repository to the container
 COPY . /var/www/imagesweserv
 WORKDIR /var/www/imagesweserv
 
-# Create nginx user/group first, to be consistent throughout docker variants
+# Create nginx user/group
 RUN addgroup -g 101 -S nginx \
     && adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx \
     # Bring in build dependencies
@@ -45,7 +45,7 @@ RUN addgroup -g 101 -S nginx \
     && cmake --build _build -- -j$(nproc) \
     # Remove build directory and dependencies
     && rm -rf _build \
-    && apk del .build-deps \
+    && apk del --no-network .build-deps \
     # Bring in runtime dependencies
     && apk add --no-cache \
         openssl \

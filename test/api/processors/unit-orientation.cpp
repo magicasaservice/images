@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include "../base.h"
 #include "../similar_image.h"
@@ -124,12 +124,8 @@ TEST_CASE("rectangular output ignoring aspect ratio, rotate by 270 degrees",
 
 TEST_CASE("rotate a multi-page image with a non-straight angle",
           "[orientation]") {
-    if (vips_type_find("VipsOperation", true_streaming
-                                            ? "gifload_source"
-                                            : "gifload_buffer") == 0 ||
-        vips_type_find("VipsOperation", pre_8_12
-                                            ? "magicksave_buffer"
-                                            : "gifsave_target") == 0) {
+    if (vips_type_find("VipsOperation", "gifload_buffer") == 0 ||
+        vips_type_find("VipsOperation", "gifsave_buffer") == 0) {
         SUCCEED("no gif support, skipping test");
         return;
     }
@@ -141,4 +137,14 @@ TEST_CASE("rotate a multi-page image with a non-straight angle",
 
     CHECK(image.width() == 1050);
     CHECK(vips_image_get_page_height(image.get_image()) == 990);
+}
+
+TEST_CASE("random access flip", "[orientation]") {
+    auto test_image = fixtures->input_jpg_overlay_layer_2;
+    auto params = "trim=10&flip";
+
+    VImage image = process_file<VImage>(test_image, params);
+
+    CHECK(image.width() == 727);
+    CHECK(image.height() == 727);
 }

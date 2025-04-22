@@ -14,17 +14,11 @@ VImage Orientation::process(const VImage &image) const {
         return image;
     }
 
-    // Internal copy, we need to re-assign a few times
-    auto output_image = image;
-
     // Rotate or flip needs random access
-    if (angle != 0 || flip) {
-        // Copy to memory evaluates the image, so set up the timeout handler,
-        // if necessary.
-        utils::setup_timeout_handler(output_image, config_.process_timeout);
-
-        output_image = output_image.copy_memory();
-    }
+    auto output_image =
+        angle != 0 || flip
+            ? utils::stay_sequential(image, config_.process_timeout)
+            : image;
 
     // Rotation by any multiple of 90 degrees
     if (angle != 0) {

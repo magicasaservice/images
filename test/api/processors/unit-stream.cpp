@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include "../base.h"
 
@@ -6,7 +7,7 @@
 #include <fstream>
 #include <vips/vips8>
 
-using Catch::Matchers::Contains;
+using Catch::Matchers::ContainsSubstring;
 using Catch::Matchers::Equals;
 using Catch::Matchers::StartsWith;
 using vips::VImage;
@@ -14,7 +15,7 @@ using vips::VImage;
 TEST_CASE("output", "[stream]") {
     SECTION("jpeg") {
         auto test_image = fixtures->input_jpg;
-        auto params = "w=300&h=300&fit=cover&output=jpg";
+        auto params = "w=300&h=300&fit=cover&output=jpeg";
 
         VImage image = process_file<VImage>(test_image, params);
 
@@ -25,12 +26,8 @@ TEST_CASE("output", "[stream]") {
     }
 
     SECTION("webp") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "webpload_source"
-                                                : "webpload_buffer") == 0 ||
-            vips_type_find("VipsOperation", true_streaming
-                                                ? "webpsave_target"
-                                                : "webpsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "webpload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "webpsave_buffer") == 0) {
             SUCCEED("no webp support, skipping test");
             return;
         }
@@ -47,12 +44,8 @@ TEST_CASE("output", "[stream]") {
     }
 
     SECTION("avif") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "heifload_source"
-                                                : "heifload_buffer") == 0 ||
-            vips_type_find("VipsOperation", true_streaming
-                                                ? "heifsave_target"
-                                                : "heifsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "heifload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "heifsave_buffer") == 0) {
             SUCCEED("no avif support, skipping test");
             return;
         }
@@ -63,24 +56,15 @@ TEST_CASE("output", "[stream]") {
         VImage image = process_file<VImage>(test_image, params);
 
         CHECK_THAT(image.get_string("vips-loader"), Equals("heifload_buffer"));
-
-        // "heif-compression" metadata added in vips 8.11
-        if (vips_version(0) > 8 ||
-            vips_version(0) == 8 && vips_version(1) >= 11) {
-            CHECK_THAT(image.get_string("heif-compression"), Equals("av1"));
-        }
+        CHECK_THAT(image.get_string("heif-compression"), Equals("av1"));
 
         CHECK(image.width() == 300);
         CHECK(image.height() == 300);
     }
 
     SECTION("tiff") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffload_source"
-                                                : "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffsave_target"
-                                                : "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -97,12 +81,8 @@ TEST_CASE("output", "[stream]") {
     }
 
     SECTION("gif") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "gifload_source"
-                                                : "gifload_buffer") == 0 ||
-            vips_type_find("VipsOperation", pre_8_12
-                                                ? "magicksave_buffer"
-                                                : "gifsave_target") == 0) {
+        if (vips_type_find("VipsOperation", "gifload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "gifsave_buffer") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }
@@ -136,9 +116,9 @@ TEST_CASE("output", "[stream]") {
 
         std::string buffer = process_file<std::string>(test_image, params);
 
-        CHECK_THAT(buffer, Contains(R"("format":"jpeg")"));
-        CHECK_THAT(buffer, Contains(R"("width":300)"));
-        CHECK_THAT(buffer, Contains(R"("height":300)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("format":"jpeg")"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("width":300)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("height":300)"));
     }
 
     SECTION("origin") {
@@ -169,9 +149,7 @@ TEST_CASE("output", "[stream]") {
 
 TEST_CASE("special page", "[stream]") {
     SECTION("largest") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "magickload_source"
-                                                : "magickload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "magickload_buffer") == 0) {
             SUCCEED("no magick support, skipping test");
             return;
         }
@@ -188,22 +166,21 @@ TEST_CASE("special page", "[stream]") {
     }
 
     SECTION("smallest") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "magickload_source"
-                                                : "magickload_buffer") == 0) {
-            SUCCEED("no magick support, skipping test");
+        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
+            SUCCEED("no tiff support, skipping test");
             return;
         }
 
-        auto test_image = fixtures->input_ico;
+        auto test_image = fixtures->input_tiff_pyramid;
         auto params = "page=-2";
 
         VImage image = process_file<VImage>(test_image, params);
 
-        CHECK_THAT(image.get_string("vips-loader"), Equals("pngload_buffer"));
+        CHECK_THAT(image.get_string("vips-loader"), Equals("tiffload_buffer"));
 
-        CHECK(image.width() == 16);
-        CHECK(image.height() == 16);
+        CHECK(image.width() == 125);
+        CHECK(image.height() == 25);
     }
 }
 
@@ -245,12 +222,8 @@ TEST_CASE("quality and compression", "[stream]") {
     }
 
     SECTION("webp quality") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "webpload_source"
-                                                : "webpload_buffer") == 0 ||
-            vips_type_find("VipsOperation", true_streaming
-                                                ? "webpsave_target"
-                                                : "webpsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "webpload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "webpsave_buffer") == 0) {
             SUCCEED("no webp support, skipping test");
             return;
         }
@@ -274,12 +247,8 @@ TEST_CASE("quality and compression", "[stream]") {
     }
 
     SECTION("avif quality") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "heifload_source"
-                                                : "heifload_buffer") == 0 ||
-            vips_type_find("VipsOperation", true_streaming
-                                                ? "heifsave_target"
-                                                : "heifsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "heifload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "heifsave_buffer") == 0) {
             SUCCEED("no avif support, skipping test");
             return;
         }
@@ -298,12 +267,8 @@ TEST_CASE("quality and compression", "[stream]") {
     }
 
     SECTION("tiff quality") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffload_source"
-                                                : "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffsave_target"
-                                                : "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -342,9 +307,7 @@ TEST_CASE("without adaptive filtering generates smaller file", "[stream]") {
 
 TEST_CASE("gif options", "[stream]") {
     SECTION("loop count") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "gifload_source"
-                                                : "gifload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "gifload_buffer") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }
@@ -354,16 +317,14 @@ TEST_CASE("gif options", "[stream]") {
 
         std::string buffer = process_file<std::string>(test_image, params);
 
-        CHECK_THAT(buffer, Contains(R"("format":"gif")"));
-        CHECK_THAT(buffer, Contains(R"("pages":8)"));
-        CHECK_THAT(buffer, Contains(R"("pageHeight":1050)"));
-        CHECK_THAT(buffer, Contains(R"("loop":1)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("format":"gif")"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("pages":8)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("pageHeight":1050)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("loop":1)"));
     }
 
     SECTION("frame delay") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "gifload_source"
-                                                : "gifload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "gifload_buffer") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }
@@ -373,16 +334,14 @@ TEST_CASE("gif options", "[stream]") {
 
         std::string buffer = process_file<std::string>(test_image, params);
 
-        CHECK_THAT(buffer, Contains(R"("format":"gif")"));
-        CHECK_THAT(buffer, Contains(R"("pages":8)"));
-        CHECK_THAT(buffer, Contains(R"("pageHeight":1050)"));
-        CHECK_THAT(buffer, Contains(R"("delay":[200)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("format":"gif")"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("pages":8)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("pageHeight":1050)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("delay":[200)"));
     }
 
     SECTION("page height") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "gifload_source"
-                                                : "gifload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "gifload_buffer") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }
@@ -392,10 +351,10 @@ TEST_CASE("gif options", "[stream]") {
 
         std::string buffer = process_file<std::string>(test_image, params);
 
-        CHECK_THAT(buffer, Contains(R"("format":"gif")"));
-        CHECK_THAT(buffer, Contains(R"("pages":8)"));
-        CHECK_THAT(buffer, Contains(R"("height":7640)"));
-        CHECK_THAT(buffer, Contains(R"("pageHeight":955)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("format":"gif")"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("pages":8)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("height":7640)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("pageHeight":955)"));
     }
 }
 
@@ -406,10 +365,11 @@ TEST_CASE("metadata", "[stream]") {
 
         std::string buffer = process_file<std::string>(test_image, params);
 
-        CHECK_THAT(buffer, Contains(R"("format":"jpeg")"));
-        CHECK_THAT(buffer, Contains(R"("chromaSubsampling":"4:4:4:4")"));
-        CHECK_THAT(buffer, Contains(R"("isProgressive":false)"));
-        CHECK_THAT(buffer, Contains(R"("density":180)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("format":"jpeg")"));
+        CHECK_THAT(buffer,
+                   ContainsSubstring(R"("chromaSubsampling":"4:4:4:4")"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("isProgressive":false)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("density":180)"));
     }
 
     SECTION("png 8 bit paletted") {
@@ -418,14 +378,12 @@ TEST_CASE("metadata", "[stream]") {
 
         std::string buffer = process_file<std::string>(test_image, params);
 
-        CHECK_THAT(buffer, Contains(R"("format":"png")"));
-        CHECK_THAT(buffer, Contains(R"("paletteBitDepth":8)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("format":"png")"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("paletteBitDepth":8)"));
     }
 
     SECTION("webp") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "webpload_source"
-                                                : "webpload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "webpload_buffer") == 0) {
             SUCCEED("no webp support, skipping test");
             return;
         }
@@ -435,13 +393,11 @@ TEST_CASE("metadata", "[stream]") {
 
         std::string buffer = process_file<std::string>(test_image, params);
 
-        CHECK_THAT(buffer, Contains(R"("format":"webp")"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("format":"webp")"));
     }
 
     SECTION("avif") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "heifload_source"
-                                                : "heifload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "heifload_buffer") == 0) {
             SUCCEED("no avif support, skipping test");
             return;
         }
@@ -451,13 +407,11 @@ TEST_CASE("metadata", "[stream]") {
 
         std::string buffer = process_file<std::string>(test_image, params);
 
-        CHECK_THAT(buffer, Contains(R"("format":"heif")"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("format":"heif")"));
     }
 
     SECTION("tiff") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "tiffload_source"
-                                                : "tiffload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -467,13 +421,11 @@ TEST_CASE("metadata", "[stream]") {
 
         std::string buffer = process_file<std::string>(test_image, params);
 
-        CHECK_THAT(buffer, Contains(R"("format":"tiff")"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("format":"tiff")"));
     }
 
     SECTION("svg") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "svgload_source"
-                                                : "svgload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "svgload_buffer") == 0) {
             SUCCEED("no svg support, skipping test");
             return;
         }
@@ -483,13 +435,11 @@ TEST_CASE("metadata", "[stream]") {
 
         std::string buffer = process_file<std::string>(test_image, params);
 
-        CHECK_THAT(buffer, Contains(R"("format":"svg")"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("format":"svg")"));
     }
 
     SECTION("pdf") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "pdfload_source"
-                                                : "pdfload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "pdfload_buffer") == 0) {
             SUCCEED("no pdf support, skipping test");
             return;
         }
@@ -499,13 +449,11 @@ TEST_CASE("metadata", "[stream]") {
 
         std::string buffer = process_file<std::string>(test_image, params);
 
-        CHECK_THAT(buffer, Contains(R"("format":"pdf")"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("format":"pdf")"));
     }
 
     SECTION("heic") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "heifload_source"
-                                                : "heifload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "heifload_buffer") == 0) {
             SUCCEED("no heif support, skipping test");
             return;
         }
@@ -515,14 +463,12 @@ TEST_CASE("metadata", "[stream]") {
 
         std::string buffer = process_file<std::string>(test_image, params);
 
-        CHECK_THAT(buffer, Contains(R"("format":"heif")"));
-        CHECK_THAT(buffer, Contains(R"("pagePrimary":0)"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("format":"heif")"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("pagePrimary":0)"));
     }
 
     SECTION("magick") {
-        if (vips_type_find("VipsOperation", true_streaming
-                                                ? "magickload_source"
-                                                : "magickload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "magickload_buffer") == 0) {
             SUCCEED("no magick support, skipping test");
             return;
         }
@@ -532,6 +478,6 @@ TEST_CASE("metadata", "[stream]") {
 
         std::string buffer = process_file<std::string>(test_image, params);
 
-        CHECK_THAT(buffer, Contains(R"("format":"magick")"));
+        CHECK_THAT(buffer, ContainsSubstring(R"("format":"magick")"));
     }
 }

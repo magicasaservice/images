@@ -1,16 +1,13 @@
 #pragma once
 
-#include "../utils/utility.h"
-
 #include <memory>
 #include <string>
-#include <utility>  // for move
 
+#include <vips/vips8>
 #include <weserv/io/source_interface.h>
 
 namespace weserv::api::io {
 
-#ifdef WESERV_ENABLE_TRUE_STREAMING
 struct WeservSourceClass {
     VipsSourceClass parent_class;
 };
@@ -19,7 +16,7 @@ struct WeservSource {
     VipsSource parent_object;
 
     /*< private >*/
-    io::SourceInterface *source;
+    SourceInterface *source;
 };
 
 #define WESERV_TYPE_SOURCE (weserv_source_get_type())
@@ -46,18 +43,13 @@ class Source : public vips::VSource {
     explicit Source(WeservSource *target, vips::VSteal steal = vips::STEAL)
         : VSource(VIPS_SOURCE(target), steal) {}
 
-#else
-class Source {
- public:
-    explicit Source(std::string buffer) : buffer_(std::move(buffer)) {}
-#endif
-
     /**
      * Create a new source from a pointer.
-     * @param target Read from this pointer.
+     * @param source Read from this pointer.
      * @return A new Source class.
      */
-    static Source new_from_pointer(std::unique_ptr<io::SourceInterface> source);
+    static Source
+    new_from_pointer(const std::unique_ptr<SourceInterface> &source);
 
     /**
      * Create a source attached to a file.
@@ -72,18 +64,6 @@ class Source {
      * @return A new Source class.
      */
     static Source new_from_buffer(const std::string &buffer);
-
-#ifndef WESERV_ENABLE_TRUE_STREAMING
-    /**
-     * @return the buffer held by this source.
-     */
-    const std::string &buffer() const {
-        return buffer_;
-    }
-
- private:
-    std::string buffer_;
-#endif
 };
 
 }  // namespace weserv::api::io

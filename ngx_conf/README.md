@@ -3,7 +3,7 @@
 ### `weserv`
 
 | syntax:      | <code>weserv proxy&#124;filter</code> |
-| :----------- | :-------------------------------------|
+| :----------- | :------------------------------------ |
 | **context:** | `location`, `if in location`          |
 
 Enables the Weserv module for nginx requests.
@@ -89,7 +89,7 @@ Sets the maximum number of redirection-followings allowed.
 ### `weserv_canonical_header`
 
 | syntax:      | <code>weserv_canonical_header on&#124;off</code> |
-| :----------- |:-------------------------------------------------|
+| :----------- | :----------------------------------------------- |
 | **default:** | `on`                                             |
 | **context:** | `http`, `server`, `location`, `if in location`   |
 
@@ -212,7 +212,7 @@ is used.
 ### `weserv_avif_effort`
 
 | syntax:      | `weserv_avif_effort <effort>`                  |
-| :----------- | :----------------------------------------------|
+| :----------- | :--------------------------------------------- |
 | **default:** | `4`                                            |
 | **context:** | `http`, `server`, `location`, `if in location` |
 
@@ -222,7 +222,7 @@ values are in the range from 0 (fastest/largest) to 9 (slowest/smallest).
 ### `weserv_gif_effort`
 
 | syntax:      | `weserv_gif_effort <effort>`                   |
-| :----------- | :----------------------------------------------|
+| :----------- | :--------------------------------------------- |
 | **default:** | `7`                                            |
 | **context:** | `http`, `server`, `location`, `if in location` |
 
@@ -232,7 +232,7 @@ values are in the range from 1 (fastest/largest) to 10 (slowest/smallest).
 ### `weserv_webp_effort`
 
 | syntax:      | `weserv_webp_effort <effort>`                  |
-| :----------- |:-----------------------------------------------|
+| :----------- | :--------------------------------------------- |
 | **default:** | `4`                                            |
 | **context:** | `http`, `server`, `location`, `if in location` |
 

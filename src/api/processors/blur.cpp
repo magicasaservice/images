@@ -22,10 +22,10 @@ VImage Blur::process(const VImage &image) const {
     if (sigma == -1.0F) {
         // Fast, mild blur - averages neighbouring pixels
         // clang-format off
-        VImage blur = VImage::new_matrixv(3, 3,
-                                          1.0, 1.0, 1.0,
-                                          1.0, 1.0, 1.0,
-                                          1.0, 1.0, 1.0);
+        auto blur = VImage::new_matrixv(3, 3,
+                                        1.0, 1.0, 1.0,
+                                        1.0, 1.0, 1.0,
+                                        1.0, 1.0, 1.0);
         // clang-format on
         blur.set("scale", 9.0);
         return image.conv(blur);
