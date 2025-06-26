@@ -3,8 +3,6 @@
 
 #include "../base.h"
 
-#include <cstdio>
-#include <fstream>
 #include <vips/vips8>
 
 using Catch::Matchers::ContainsSubstring;
@@ -206,19 +204,15 @@ TEST_CASE("quality and compression", "[stream]") {
 
     SECTION("png level") {
         auto test_image = fixtures->input_png;
-        auto params_3 = "w=320&h=240&fit=cover&l=3";
-        auto params_6 = "w=320&h=240&fit=cover";
-        // auto params_9 = "w=320&h=240&fit=cover&l=9";
+        auto params_0 = "w=320&h=240&fit=cover&l=0";
+        auto params_9 = "w=320&h=240&fit=cover&l=9";
 
-        std::string buffer_3 = process_file<std::string>(test_image, params_3);
+        std::string buffer_0 = process_file<std::string>(test_image, params_0);
 
-        std::string buffer_6 = process_file<std::string>(test_image, params_6);
+        std::string buffer_9 = process_file<std::string>(test_image, params_9);
 
-        // std::string buffer_9 = process_file<std::string>(test_image,
-        // params_9);
-
-        CHECK(buffer_3.size() < buffer_6.size());
-        // CHECK(buffer_6.size() < buffer_9.size());
+        // higher zlib compression level should produce smaller buffer
+        CHECK(buffer_9.size() < buffer_0.size());
     }
 
     SECTION("webp quality") {
@@ -454,7 +448,7 @@ TEST_CASE("metadata", "[stream]") {
 
     SECTION("heic") {
         if (vips_type_find("VipsOperation", "heifload_buffer") == 0) {
-            SUCCEED("no heif support, skipping test");
+            SUCCEED("no heic support, skipping test");
             return;
         }
 

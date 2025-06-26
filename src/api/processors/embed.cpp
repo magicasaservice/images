@@ -132,14 +132,15 @@ VImage Embed::process(const VImage &image) const {
             image_width, image_height, width, height, embed_position);
     }
 
-    std::vector<double> background_rgba = bg.to_rgba();
+    std::vector<double> background = bg.to_rgba();
     bool opaque = bg.is_opaque();
     bool has_alpha = image.has_alpha();
 
-    // Drop the alpha channel of the background if it's opaque and the image has
-    // no alpha channel
+    // Ensure the background has the same number of bands as the image
     if (opaque && !has_alpha) {
-        background_rgba.pop_back();
+        background.pop_back();
+    } else if (image.bands() > 4) {
+        background.insert(background.end(), image.bands() - 4, background[3]);
     }
 
     // Internal copy to ensure that the image has an alpha channel, if missing
@@ -150,11 +151,11 @@ VImage Embed::process(const VImage &image) const {
 
     return n_pages > 1
                ? embed_multi_page(output_image, left, top, width, height,
-                                  background_rgba, n_pages, image_height)
+                                  background, n_pages, image_height)
                : output_image.embed(left, top, width, height,
                                     VImage::option()
                                         ->set("extend", VIPS_EXTEND_BACKGROUND)
-                                        ->set("background", background_rgba));
+                                        ->set("background", background));
 }
 
 }  // namespace weserv::api::processors

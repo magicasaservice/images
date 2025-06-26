@@ -119,6 +119,9 @@ struct Fixtures {
     // https://www.leadtools.com/support/forum/posts/m41249-Sample-File--LZW-compressed-multi-page-TIFF#post41249
     std::string input_tiff_multi_page{dir + "/MultipleFormats.tif"};
 
+    // vips black 5-channel.tiff[compression=deflate] 100 100 --bands 5
+    std::string input_tiff_5_channel{dir + "/5-channel.tiff"};
+
     // https://storage.googleapis.com/downloads.webmproject.org/webp/images/dancing-banana.gif
     std::string input_gif_animated{dir + "/dancing-banana.gif"};
 

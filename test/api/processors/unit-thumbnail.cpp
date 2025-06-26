@@ -519,15 +519,15 @@ TEST_CASE("pdf", "[thumbnail]") {
     CHECK_THAT(image, is_similar_image(expected_image));
 }
 
-TEST_CASE("heif", "[thumbnail]") {
+TEST_CASE("avif", "[thumbnail]") {
     if (vips_type_find("VipsOperation", "heifload_buffer") == 0) {
-        SUCCEED("no heic support, skipping test");
+        SUCCEED("no avif support, skipping test");
         return;
     }
 
-    auto test_image = fixtures->input_heic;
-    auto expected_image = fixtures->expected_dir + "/heif-thumbnail.jpg";
-    auto params = "w=240&h=160&output=jpg";
+    auto test_image = fixtures->input_avif;
+    auto expected_image = fixtures->expected_dir + "/avif-thumbnail.jpg";
+    auto params = "w=240&h=160&fit=cover&output=jpg";
 
     VImage image = process_file<VImage>(test_image, params);
 

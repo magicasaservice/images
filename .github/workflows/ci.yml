@@ -20,7 +20,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-24.04
-            libvips-version: 8.16.1
+            libvips-version: 8.17.0
             coverage: true
 
     steps:

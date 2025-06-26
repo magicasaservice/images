@@ -32,9 +32,7 @@ struct WeservTarget {
     (G_TYPE_INSTANCE_GET_CLASS((obj), WESERV_TYPE_TARGET, WeservTargetClass))
 
 // We need C linkage for this.
-extern "C" {
-GType weserv_target_get_type(void);
-}
+extern "C" GType weserv_target_get_type();
 
 class Target : public vips::VTarget {
  public:

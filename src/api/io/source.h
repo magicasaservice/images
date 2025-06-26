@@ -32,9 +32,7 @@ struct WeservSource {
     (G_TYPE_INSTANCE_GET_CLASS((obj), WESERV_TYPE_SOURCE, WeservSourceClass))
 
 // We need C linkage for this.
-extern "C" {
-GType weserv_source_get_type();
-}
+extern "C" GType weserv_source_get_type();
 
 class Source : public vips::VSource {
  public:

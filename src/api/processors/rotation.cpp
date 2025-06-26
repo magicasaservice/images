@@ -22,14 +22,15 @@ VImage Rotation::process(const VImage &image) const {
     // A background color can be specified with the rbg parameter
     auto bg = query_->get<Color>("rbg", Color::DEFAULT);
 
-    std::vector<double> background_rgba = bg.to_rgba();
+    std::vector<double> background = bg.to_rgba();
     bool opaque = bg.is_opaque();
     bool has_alpha = image.has_alpha();
 
-    // Drop the alpha channel of the background if it's opaque and the image has
-    // no alpha channel
+    // Ensure the background has the same number of bands as the image
     if (opaque && !has_alpha) {
-        background_rgba.pop_back();
+        background.pop_back();
+    } else if (image.bands() > 4) {
+        background.insert(background.end(), image.bands() - 4, background[3]);
     }
 
     // Internal copy to ensure that the image has an alpha channel, if missing
@@ -39,7 +40,7 @@ VImage Rotation::process(const VImage &image) const {
             : image.bandjoin_const({255});  // Assumes images are always 8-bit
 
     return utils::stay_sequential(output_image, config_.process_timeout)
-        .rotate(rotation, VImage::option()->set("background", background_rgba));
+        .rotate(rotation, VImage::option()->set("background", background));
 }
 
 }  // namespace weserv::api::processors

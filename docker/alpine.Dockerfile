@@ -1,11 +1,11 @@
 # Based on:
 # https://github.com/nginx/pkg-oss/blob/master/alpine/Makefile
 # https://github.com/nginxinc/docker-nginx/blob/master/mainline/alpine/Dockerfile
-FROM alpine:3.21
+FROM alpine:3.22
 
 LABEL maintainer="Kleis Auke Wolthuizen <info@kleisauke.nl>"
 
-ARG NGINX_VERSION=1.27.4
+ARG NGINX_VERSION=1.27.5
 
 # Copy the contents of this repository to the container
 COPY . /var/www/imagesweserv
@@ -38,8 +38,8 @@ RUN addgroup -g 101 -S nginx \
 --http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp;\
 --http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp;\
 --http-scgi-temp-path=/var/cache/nginx/scgi_temp;\
---pid-path=/var/run/nginx.pid;\
---lock-path=/var/run/nginx.lock;\
+--pid-path=/run/nginx.pid;\
+--lock-path=/run/nginx.lock;\
 --user=nginx;\
 --group=nginx" \
     && cmake --build _build -- -j$(nproc) \

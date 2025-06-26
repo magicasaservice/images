@@ -30,6 +30,25 @@ TEST_CASE("embed", "[embed]") {
         CHECK(!image.has_alpha());
     }
 
+    SECTION("5-channel tiff") {
+        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
+            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
+            SUCCEED("no tiff support, skipping test");
+            return;
+        }
+
+        auto test_image = fixtures->input_tiff_5_channel;
+        auto params = "w=50&h=40&fit=contain&cbg=white&ll";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK_THAT(image.get_string("vips-loader"), Equals("tiffload_buffer"));
+
+        CHECK(image.width() == 50);
+        CHECK(image.height() == 40);
+        CHECK(image.has_alpha());
+    }
+
     // Letterbox TIFF in LAB colourspace onto RGBA background
     SECTION("tiff on rgba") {
         if (vips_type_find("VipsOperation", "tiffload_buffer") == 0) {

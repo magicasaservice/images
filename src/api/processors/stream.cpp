@@ -392,11 +392,17 @@ void Stream::append_save_options<Output::Tiff>(vips::VOption *options) const {
         },
         static_cast<int>(config_.tiff_quality));
 
+    // Use JPEG or Deflate compression based on whether lossless output is
+    // required
+    auto compression = query_->get<bool>("ll", false)
+                           ? VIPS_FOREIGN_TIFF_COMPRESSION_DEFLATE
+                           : VIPS_FOREIGN_TIFF_COMPRESSION_JPEG;
+
     // Set quality (default is 80)
     options->set("Q", quality);
 
-    // Set the tiff compression to jpeg
-    options->set("compression", "jpeg");
+    // Set tiff compression format
+    options->set("compression", compression);
 }
 
 template <>

@@ -4,7 +4,6 @@
 #include "error.h"
 #include "http.h"
 #include "uri_parser.h"
-#include "util.h"
 
 #include <memory>
 #include <string>

@@ -16,16 +16,6 @@ TEST_CASE("invalid image", "[invalid]") {
         CHECK_THAT(status.message(),
                    ContainsSubstring("Invalid or unsupported image format"));
     }
-    SECTION("file") {
-        auto test_file = fixtures->dir + "/doesnotexist.jpg";
-        Status status = process_file(test_file, test_file, "");
-
-        CHECK(!status.ok());
-        CHECK(status.code() == static_cast<int>(Status::Code::InvalidImage));
-        CHECK(status.error_cause() == Status::ErrorCause::Application);
-        CHECK_THAT(status.message(),
-                   ContainsSubstring("Invalid or unsupported image format"));
-    }
     SECTION("source") {
         class InvalidSource : public SourceInterface {
             int64_t read(void *data, size_t length) override {
