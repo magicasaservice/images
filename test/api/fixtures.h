@@ -148,4 +148,7 @@ struct Fixtures {
 
     // CC by-nc-nd https://github.com/AOMediaCodec/av1-avif/tree/master/testFiles/Netflix
     std::string input_avif{dir + "/cosmos_frame12924_yuv420_10bpc_bt2020_pq_q50.avif"};
+
+    // CC0 https://github.com/libjxl/conformance/tree/master/testcases/sunset_logo
+    std::string input_jxl{dir + "/sunset_logo.jxl"};
 };

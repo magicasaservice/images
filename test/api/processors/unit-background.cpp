@@ -121,8 +121,8 @@ TEST_CASE("composite to 50% orange", "[background]") {
 }
 
 TEST_CASE("5-channel tiff", "[background]") {
-    if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
-        vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
+    if (vips_type_find("VipsOperation", "tiffload_source") == 0 ||
+        vips_type_find("VipsOperation", "tiffsave_target") == 0) {
         SUCCEED("no tiff support, skipping test");
         return;
     }

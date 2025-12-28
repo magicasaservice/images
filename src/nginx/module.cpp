@@ -70,6 +70,7 @@ ngx_conf_bitmask_t ngx_weserv_savers[] = {
     {ngx_string("tiff"), static_cast<ngx_uint_t>(Output::Tiff)},
     {ngx_string("gif"), static_cast<ngx_uint_t>(Output::Gif)},
     {ngx_string("json"), static_cast<ngx_uint_t>(Output::Json)},
+    {ngx_string("jxl"), static_cast<ngx_uint_t>(Output::Jxl)},
     {ngx_null_string, 0}  // last entry
 };
 
@@ -79,6 +80,10 @@ ngx_conf_num_bounds_t ngx_weserv_quality_bounds = {
 
 ngx_conf_num_bounds_t ngx_weserv_avif_effort_bounds = {
     ngx_conf_check_num_bounds, 0, 9
+};
+
+ngx_conf_num_bounds_t ngx_weserv_jxl_effort_bounds = {
+    ngx_conf_check_num_bounds, 1, 10
 };
 
 ngx_conf_num_bounds_t ngx_weserv_gif_effort_bounds = {
@@ -234,6 +239,14 @@ ngx_command_t ngx_weserv_commands[] = {
      offsetof(ngx_weserv_loc_conf_t, api_conf.jpeg_quality),
      &ngx_weserv_quality_bounds},
 
+    {ngx_string("weserv_jxl_quality"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_num_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.jxl_quality),
+     &ngx_weserv_quality_bounds},
+
     {ngx_string("weserv_tiff_quality"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
          NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
@@ -257,6 +270,14 @@ ngx_command_t ngx_weserv_commands[] = {
      NGX_HTTP_LOC_CONF_OFFSET,
      offsetof(ngx_weserv_loc_conf_t, api_conf.avif_effort),
      &ngx_weserv_avif_effort_bounds},
+
+    {ngx_string("weserv_jxl_effort"),
+     NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
+         NGX_HTTP_LIF_CONF | NGX_CONF_TAKE1,
+     ngx_conf_set_num_slot,
+     NGX_HTTP_LOC_CONF_OFFSET,
+     offsetof(ngx_weserv_loc_conf_t, api_conf.jxl_effort),
+     &ngx_weserv_jxl_effort_bounds},
 
     {ngx_string("weserv_gif_effort"),
      NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF |
@@ -528,9 +549,11 @@ void *ngx_weserv_create_loc_conf(ngx_conf_t *cf) {
     lc->api_conf.quality = NGX_CONF_UNSET;
     lc->api_conf.avif_quality = NGX_CONF_UNSET;
     lc->api_conf.jpeg_quality = NGX_CONF_UNSET;
+    lc->api_conf.jxl_quality = NGX_CONF_UNSET;
     lc->api_conf.tiff_quality = NGX_CONF_UNSET;
     lc->api_conf.webp_quality = NGX_CONF_UNSET;
     lc->api_conf.avif_effort = NGX_CONF_UNSET;
+    lc->api_conf.jxl_effort = NGX_CONF_UNSET;
     lc->api_conf.gif_effort = NGX_CONF_UNSET;
     lc->api_conf.webp_effort = NGX_CONF_UNSET;
     lc->api_conf.zlib_level = NGX_CONF_UNSET;
@@ -601,6 +624,8 @@ char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
                          prev->api_conf.avif_quality, conf->api_conf.quality);
     ngx_conf_merge_value(conf->api_conf.jpeg_quality,
                          prev->api_conf.jpeg_quality, conf->api_conf.quality);
+    ngx_conf_merge_value(conf->api_conf.jxl_quality,
+                         prev->api_conf.jxl_quality, conf->api_conf.quality);
     ngx_conf_merge_value(conf->api_conf.tiff_quality,
                          prev->api_conf.tiff_quality, conf->api_conf.quality);
     ngx_conf_merge_value(conf->api_conf.webp_quality,
@@ -610,6 +635,8 @@ char *ngx_weserv_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child) {
     // (corresponds to the default values in libvips)
     ngx_conf_merge_value(conf->api_conf.avif_effort, prev->api_conf.avif_effort,
                          4);
+    ngx_conf_merge_value(conf->api_conf.jxl_effort, prev->api_conf.jxl_effort,
+                         7);
     ngx_conf_merge_value(conf->api_conf.gif_effort, prev->api_conf.gif_effort,
                          7);
     ngx_conf_merge_value(conf->api_conf.webp_effort, prev->api_conf.webp_effort,
@@ -734,8 +761,6 @@ ngx_int_t ngx_weserv_image_filter_read(ngx_http_request_t *r,
         b->pos += size;
 
         if (b->last_buf) {
-            ngx_free_chain(r->pool, cl);
-
             ctx->last = p;
             return NGX_OK;
         }

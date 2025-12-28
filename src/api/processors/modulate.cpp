@@ -4,7 +4,7 @@ namespace weserv::api::processors {
 
 VImage Modulate::process(const VImage &image) const {
     auto brightness = query_->get_if<float>(
-        /*"bri"*/"mod",
+        "bri",
         [](float b) {
             // Brightness needs to be in range of 0 - 10000
             return b >= 0 && b <= 10000;

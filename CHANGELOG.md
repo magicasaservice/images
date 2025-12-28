@@ -38,6 +38,7 @@ Requires libvips 8.12+.
 - Support for `&default=1` ([#371](https://github.com/weserv/images/issues/371)).
 - Support for percentage-based values for some parameters ([#384](https://github.com/weserv/images/issues/384)).
 - Support for lossless encoding of WebP and TIFF images (`&ll`) ([#386](https://github.com/weserv/images/issues/386)).
+- Support for specifying the trim background color (`&tbg=`) ([#459](https://github.com/weserv/images/issues/459)).
 
 ### Changed
 - Migrate Docker base image to Rocky Linux 10.
@@ -59,8 +60,7 @@ Requires libvips 8.12+.
 - Improve luminance of `&tint=` operation with weighting function.
 
 ### Fixed
-- Compatibility with CMake < 3.12.
-- Compatibility with legacy websites by using lowest OpenSSL security level ([#208](https://github.com/weserv/images/issues/208)).
+- Compatibility with legacy websites by using the lowest OpenSSL security level ([#208](https://github.com/weserv/images/issues/208)).
 - Thread safety with copy-on-write for metadata ([lovell/sharp#1986](https://github.com/lovell/sharp/issues/1986)).
 - A small memory leak in thumbnail.
 - Comply URI parser with the RFC-3986 standard ([#237](https://github.com/weserv/images/issues/237)).
@@ -80,6 +80,7 @@ Requires libvips 8.12+.
 - The maximum values of the sharpen operation ([#357](https://github.com/weserv/images/issues/357)).
 - Bump buffer size for HTTP response headers ([#378](https://github.com/weserv/images/issues/378)).
 - Ensure correct dimensions for 90/270 rotate.
+- Ensure `&trim` is effective when used without a value.
 
 ### Deprecated
 | Before               | Use instead                             |
@@ -209,7 +210,7 @@ With the magical help of [libvips](https://github.com/libvips/libvips) and the P
 
 ### Changed
 - Dropped [Intervention Image](https://image.intervention.io/) in favor of [php-vips](https://github.com/libvips/php-vips) because resizing an image with [libvips](https://github.com/libvips/libvips) is typically 4x-5x faster than using the quickest ImageMagick.
-- We're now using the [uri package](https://github.com/thephpleague/uri) in order to parse URIs correctly. This is a drop-in replacement to PHP’s `parse_url` function.
+- We're now using the [uri package](https://github.com/thephpleague/uri) to parse URIs correctly. This is a drop-in replacement to PHP’s `parse_url` function.
 
 ### Deprecated
 | Before    | Use instead     |
@@ -223,13 +224,13 @@ With the magical help of [libvips](https://github.com/libvips/libvips) and the P
 ## [2.0.0] - started 2015-12-27
 
 ### Note
-This version was never used in production, it's only used for testing purposes, and it was a beginning to re-write the entire image proxy (which is in production since 2007).
+This version was never used in production; it was only used for testing purposes and marked the start of rewriting the image proxy (which has been in production since 2007).
 
 ### Added
 - Add CHANGELOG.md based on [’Keep a CHANGELOG’](https://github.com/olivierlacan/keep-a-changelog).
 - Composer ready and [PSR-2](https://www.php-fig.org/psr/psr-2/) compliant.
-- Used the [Intervention Image](https://image.intervention.io/) library for image handling and manipulation.
-- Used the [Guzzle](https://github.com/guzzle/guzzle) library for sending HTTP requests.
+- Use the [Intervention Image](https://image.intervention.io/) library for image handling and manipulation.
+- Use the [Guzzle](https://github.com/guzzle/guzzle) library for sending HTTP requests.
 
 ## [1.0.0] - started 2007-09-10
 
@@ -238,7 +239,7 @@ The start of our image proxy. See for more details [here](https://github.com/wes
 
 ### Added / Changed / Fixed
 We never kept a changelog from 2007 to 2015.
-For a quick overview what we've added, changed or fixed in the past see our [completed label](https://github.com/weserv/images/issues?utf8=%E2%9C%93&q=label%3Acompleted%20no%3Amilestone) on our issue tracker. Or take a look at our [1.x branch](https://github.com/weserv/images/tree/1.x).
+For a quick overview of what we've added, changed or fixed in the past, see our [completed label](https://github.com/weserv/images/issues?utf8=%E2%9C%93&q=label%3Acompleted%20no%3Amilestone) on our issue tracker. Or take a look at our [1.x branch](https://github.com/weserv/images/tree/1.x).
 
 [Current trunk]: https://github.com/weserv/images/compare/v5.0.0...HEAD
 [5.0.0]: https://github.com/weserv/images/compare/4.x...v5.0.0

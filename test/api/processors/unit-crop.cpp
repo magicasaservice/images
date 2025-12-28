@@ -41,8 +41,8 @@ TEST_CASE("partial image extract", "[crop]") {
     }
 
     SECTION("webp") {
-        if (vips_type_find("VipsOperation", "webpload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "webpsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "webpload_source") == 0 ||
+            vips_type_find("VipsOperation", "webpsave_target") == 0) {
             SUCCEED("no webp support, skipping test");
             return;
         }
@@ -62,8 +62,8 @@ TEST_CASE("partial image extract", "[crop]") {
     }
 
     SECTION("tiff") {
-        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "tiffload_source") == 0 ||
+            vips_type_find("VipsOperation", "tiffsave_target") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -112,7 +112,7 @@ TEST_CASE("image extract before resize", "[crop]") {
 }
 
 TEST_CASE("image resize and extract svg 72 dpi", "[crop]") {
-    if (vips_type_find("VipsOperation", "svgload_buffer") == 0) {
+    if (vips_type_find("VipsOperation", "svgload_source") == 0) {
         SUCCEED("no svg support, skipping test");
         return;
     }
@@ -240,8 +240,8 @@ TEST_CASE("bad extract area", "[crop]") {
 }
 
 TEST_CASE("animated image", "[crop]") {
-    if (vips_type_find("VipsOperation", "gifload_buffer") == 0 ||
-        vips_type_find("VipsOperation", "gifsave_buffer") == 0) {
+    if (vips_type_find("VipsOperation", "gifload_source") == 0 ||
+        vips_type_find("VipsOperation", "gifsave_target") == 0) {
         SUCCEED("no gif support, skipping test");
         return;
     }

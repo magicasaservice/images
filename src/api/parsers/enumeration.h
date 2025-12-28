@@ -142,6 +142,9 @@ inline enums::Output parse(const std::string &value) {
     if (value == "avif" || value == "av1") {
         return enums::Output::Avif;
     }
+    if (value == "jxl") {
+        return enums::Output::Jxl;
+    }
     if (value == "json") {
         return enums::Output::Json;
     }

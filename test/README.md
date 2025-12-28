@@ -18,8 +18,8 @@ following dependencies are required to run the unit tests:
 
 * libvips version >= 8.12
 
-Other dependencies (such as [Catch2](https://github.com/catchorg/Catch2)) are
-installed using the `FetchContent` module within CMake.
+Other dependencies (such as [Catch2](https://github.com/catchorg/Catch2)) will
+be automatically downloaded and built if they are not already present.
 
 For the integration tests you need the following dependencies:
 
@@ -31,43 +31,16 @@ For the integration tests you need the following dependencies:
 * Nginx modules:
     * ngx_weserv (i.e., this module)
 
-Note that Nginx is automatically configured and installed with the necessary
-modules enabled using the `ExternalProject` module within CMake. If you prefer
-to build Nginx by your own, use the `-DINSTALL_NGX_MODULE=OFF` on the CMake
-command line.
-
-## Code coverage
-
-If you have LCOV installed, you can view and collect coverage information,
-by specifying `-DENABLE_COVERAGE=ON` on the CMake command line. To collect
-coverage information and generate a browsable html report:
-
-```bash
-cmake --build . --target coverage-html
-```
-
-You will be able to browse the LCOV report by opening `lcov/index.html`.
-
-For only collecting collect coverage information, you can use:
-
-```bash
-cmake --build . --target coverage
-```
-
 ## Unit tests
 
-To run the unit tests without installing the Nginx module:
+To run the unit tests:
 
 ```bash
 git clone https://github.com/weserv/images.git
 cd images
-mkdir build && cd build
-cmake .. \
-  -DCMAKE_BUILD_TYPE=Debug \
-  -DBUILD_TESTS=ON \
-  -DINSTALL_NGX_MODULE=OFF
-cmake --build . -- -j$(nproc)
-ctest -j $(nproc) --output-on-failure
+meson setup build -Dbuildtype=debug -Dtests=true
+meson compile -C build
+meson test -C build
 ```
 
 ## Integration tests
@@ -75,22 +48,16 @@ ctest -j $(nproc) --output-on-failure
 To run the integration tests in the default testing mode:
 
 ```bash
-git clone https://github.com/weserv/images.git
-cd images
-mkdir build && cd build
-cmake .. \
-  -DCMAKE_BUILD_TYPE=Debug
-cmake --build . -- -j$(nproc)
-
-cd ../
 export PATH="/usr/local/nginx/sbin:$PATH"
 TEST_NGINX_SERVROOT="$PWD/servroot" prove -I/path/to/test-nginx/lib -r test/nginx
 ```
 
+This assumes that Nginx along with the weserv module is already installed,
+see [INSTALL.md](../INSTALL.md) for details.
+
 To run specific test files:
 
 ```bash
-cd images
 export PATH="/usr/local/nginx/sbin:$PATH"
 prove -I/path/to/test-nginx/lib test/nginx/file.t test/nginx/proxy.t
 ```

@@ -18,7 +18,7 @@ and [nginx](https://github.com/nginx/nginx) (used as web server, forward proxy a
 - Linux, [nginx](https://github.com/nginx/nginx) and [libvips](https://github.com/libvips/libvips)
  (without these technologies, this project would never have been possible)
 - [Cloudflare](https://www.cloudflare.com/) (for CDN caching and IP-blocking)
-- [Redis](https://github.com/antirez/redis) (for rate limiting)
+- [Valkey](https://github.com/valkey-io/valkey) (for rate limiting)
 - [OpenDNS](https://www.opendns.com/) (for DNS-filtering)
 
 ## Documentation

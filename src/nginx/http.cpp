@@ -723,7 +723,12 @@ Status initialize_upstream_request(ngx_http_request_t *r,
         return status;
     }
 
+#ifdef freenginx
+    // ngx_buf_tag_t was changed to uintptr_t in freenginx.
+    u->output.tag = reinterpret_cast<ngx_buf_tag_t>(&ngx_weserv_module);
+#else
     u->output.tag = static_cast<ngx_buf_tag_t>(&ngx_weserv_module);
+#endif
 
     u->conf = &lc->upstream_conf;
     u->buffering = lc->upstream_conf.buffering;

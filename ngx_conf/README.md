@@ -98,10 +98,10 @@ proxied images (i.e., when configured with the `proxy` backend mode).
 
 ### `weserv_savers`
 
-| syntax:      | `weserv_savers [jpg] [png] [webp] [avif] [tiff] [gif] [json]` |
-| :----------- | :------------------------------------------------------------ |
-| **default:** | `jpg png webp avif tiff gif json`                             |
-| **context:** | `http`, `server`, `location`                                  |
+| syntax:      | `weserv_savers [jpg] [png] [webp] [avif] [tiff] [gif] [json] [jxl]` |
+| :----------- | :------------------------------------------------------------------ |
+| **default:** | `jpg png webp avif tiff gif json jxl`                               |
+| **context:** | `http`, `server`, `location`                                        |
 
 Enables or disables image savers to be used within the `&output=` query parameter.
 This directive accepts multiple parameters.
@@ -154,8 +154,8 @@ any upscaling. Set to `0` to remove this limit.
 | **default:** | `80`                                           |
 | **context:** | `http`, `server`, `location`, `if in location` |
 
-Sets the default quality to use for JPEG, WebP, TIFF and AVIF images when
-`&q=` is not specified. Acceptable values are in the range from 1 to 100.
+Sets the default quality to use for JPEG, WebP, TIFF, AVIF and JPEG XL images
+when `&q=` is not specified. Acceptable values are in the range from 1 to 100.
 
 ### `weserv_avif_quality`
 
@@ -178,6 +178,19 @@ is used.
 | **context:** | `http`, `server`, `location`, `if in location` |
 
 Sets the default quality to use for JPEG images when `&q=` is not specified.
+Acceptable values are in the range from 1 to 100.
+
+If the directive is not present, then the quality specified in `weserv_quality`
+is used.
+
+### `weserv_jxl_quality`
+
+| syntax:      | `weserv_jxl_quality <quality>`                 |
+| :----------- | :--------------------------------------------- |
+| **default:** | —                                              |
+| **context:** | `http`, `server`, `location`, `if in location` |
+
+Sets the default quality to use for JPEG XL images when `&q=` is not specified.
 Acceptable values are in the range from 1 to 100.
 
 If the directive is not present, then the quality specified in `weserv_quality`
@@ -218,6 +231,16 @@ is used.
 
 Controls the CPU effort spent on improving AVIF compression. Acceptable
 values are in the range from 0 (fastest/largest) to 9 (slowest/smallest).
+
+### `weserv_jxl_effort`
+
+| syntax:      | `weserv_jxl_effort <effort>`                   |
+| :----------- | :--------------------------------------------- |
+| **default:** | `7`                                            |
+| **context:** | `http`, `server`, `location`, `if in location` |
+
+Controls the CPU effort spent on improving JPEG XL compression. Acceptable
+values are in the range from 1 (fastest/largest) to 10 (slowest/smallest).
 
 ### `weserv_gif_effort`
 

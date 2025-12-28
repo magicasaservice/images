@@ -9,8 +9,7 @@ namespace weserv::api::exceptions {
  */
 class UnreadableImageException : public std::runtime_error {
  public:
-    explicit UnreadableImageException(const std::string &error)
-        : std::runtime_error(error) {}
+    using std::runtime_error::runtime_error;
 };
 
 }  // namespace weserv::api::exceptions

@@ -7,7 +7,7 @@ using Catch::Matchers::ContainsSubstring;
 
 TEST_CASE("unreadable image", "[unreadable]") {
     SECTION("buffer") {
-        if (vips_type_find("VipsOperation", "gifload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "gifload_source") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }

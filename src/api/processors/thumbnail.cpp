@@ -1,7 +1,6 @@
 #include "thumbnail.h"
 
 #include "../exceptions/large.h"
-#include "../io/blob.h"
 #include "../utils/utility.h"
 
 #include <algorithm>
@@ -19,7 +18,6 @@ using enums::ImageType;
 // NOTE: Can be overridden with `&fsol=0`.
 constexpr bool FAST_SHRINK_ON_LOAD = true;
 
-using io::Blob;
 using io::Source;
 
 template <>
@@ -205,8 +203,9 @@ int Thumbnail::resolve_tiff_pyramid(const VImage &image, const Source &source,
             return -1;
         }
 
+        // Not >=, shrink can clip to 1.0
         if (target_page == -1 &&
-            resolve_common_shrink(level_width, level_height) >= 1.0) {
+            resolve_common_shrink(level_width, level_height) > 1.0) {
             target_page = i;
 
             // We may have found a pyramid, but we
@@ -241,7 +240,8 @@ int Thumbnail::resolve_tiff_pyramid(const VImage &image, const Source &source,
         auto level_height =
             std::stoi(image.get_string(level_height_field.c_str()));
 
-        if (resolve_common_shrink(level_width, level_height) >= 1.0) {
+        // Not >=, shrink can clip to 1.0
+        if (resolve_common_shrink(level_width, level_height) > 1.0) {
             return level;
         }
     }

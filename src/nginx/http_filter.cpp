@@ -160,7 +160,7 @@ ngx_int_t ngx_weserv_chunked_filter(ngx_event_pipe_t *p, ngx_buf_t *buf) {
         // was modified to enable passing upstream response trailers to the
         // client.
         ngx_int_t rc = ngx_http_parse_chunked(r, buf, &ctx->chunked
-#if defined(nginx_version) && nginx_version >= 1027002
+#if !defined(freenginx) && defined(nginx_version) && nginx_version >= 1027002
                                               , 0
 #endif
         );
@@ -298,7 +298,16 @@ ngx_int_t ngx_weserv_input_filter_init(void *data) {
         // Chunked
 
         u->pipe->input_filter = ngx_weserv_chunked_filter;
+
+        // In NGINX version 1.29.4, a single LF is no longer accepted as a valid
+        // line terminator in chunked response bodies. Update u->pipe->length to
+        // reflect the minimum number of bytes expected for line terminators,
+        // which must now use CRLF.
+#if !defined(freenginx) && defined(nginx_version) && nginx_version >= 1029004
+        u->pipe->length = 5;  // "0" CRLF CRLF
+#else
         u->pipe->length = 3;  // "0" LF LF
+#endif
     } else if (u->headers_in.content_length_n == 0) {
         // Empty body: special case as filter won't be called
 

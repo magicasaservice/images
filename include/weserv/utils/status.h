@@ -9,7 +9,7 @@ namespace weserv::api::utils {
  * status messages have an error code, an error message, and an error cause.
  * An OK status has a code of 0 or 200 and no message.
  */
-class Status final {
+class [[gnu::visibility("default")]] Status final {
  public:
     enum class ErrorCause {
         Internal = 0,     // Internal proxy error (default)

@@ -12,8 +12,8 @@ using vips::VImage;
 TEST_CASE("embed", "[embed]") {
     // TIFF letterbox known to cause rounding errors
     SECTION("tiff") {
-        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "tiffload_source") == 0 ||
+            vips_type_find("VipsOperation", "tiffsave_target") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -31,8 +31,8 @@ TEST_CASE("embed", "[embed]") {
     }
 
     SECTION("5-channel tiff") {
-        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "tiffsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "tiffload_source") == 0 ||
+            vips_type_find("VipsOperation", "tiffsave_target") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -51,7 +51,7 @@ TEST_CASE("embed", "[embed]") {
 
     // Letterbox TIFF in LAB colourspace onto RGBA background
     SECTION("tiff on rgba") {
-        if (vips_type_find("VipsOperation", "tiffload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "tiffload_source") == 0) {
             SUCCEED("no tiff support, skipping test");
             return;
         }
@@ -197,8 +197,8 @@ TEST_CASE("skip", "[embed]") {
 
 TEST_CASE("animated image", "[embed]") {
     SECTION("width only") {
-        if (vips_type_find("VipsOperation", "gifload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "gifsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "gifload_source") == 0 ||
+            vips_type_find("VipsOperation", "gifsave_target") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }
@@ -213,8 +213,8 @@ TEST_CASE("animated image", "[embed]") {
     }
 
     SECTION("height only") {
-        if (vips_type_find("VipsOperation", "gifload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "gifsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "gifload_source") == 0 ||
+            vips_type_find("VipsOperation", "gifsave_target") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }

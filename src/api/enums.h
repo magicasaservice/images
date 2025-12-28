@@ -43,6 +43,7 @@ enum class MaskType {
 
 enum class ImageType {
     Jpeg,
+    Jxl,
     Png,
     Webp,
     Tiff,

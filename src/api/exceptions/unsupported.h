@@ -9,8 +9,7 @@ namespace weserv::api::exceptions {
  */
 class UnsupportedSaverException : public std::runtime_error {
  public:
-    explicit UnsupportedSaverException(const std::string &error)
-        : std::runtime_error(error) {}
+    using std::runtime_error::runtime_error;
 };
 
 }  // namespace weserv::api::exceptions

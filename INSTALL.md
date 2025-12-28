@@ -2,7 +2,7 @@
 
 ## Build dependencies
 
- * `cmake` >= 3.14 (for `FetchContent_MakeAvailable()` command)
+ * `meson` >= 0.63 (for `preserve_path` arg in `install_headers()`)
  * `g++` >= 5.0 (for `-std=c++17` support)
  * `pcre2` (for nginx rewrite module)
  * `zlib` (for nginx gzip module)
@@ -33,11 +33,11 @@ dnf config-manager --set-enabled remi
 dnf install vips vips-devel vips-tools
 
 # Install optional modules
-dnf install vips-heif vips-magick-im7 vips-poppler
+dnf install vips-heif vips-jxl vips-magick-im7 vips-poppler
 
 # Install build requirements
-dnf group install --with-optional 'Development Tools'
-dnf install openssl-devel pcre2-devel zlib-devel
+dnf group install 'Development Tools'
+dnf install meson openssl-devel pcre2-devel zlib-devel
 ```
 
 ## Build
@@ -45,8 +45,15 @@ dnf install openssl-devel pcre2-devel zlib-devel
 ```bash
 git clone --recurse-submodules https://github.com/weserv/images.git
 cd images
-mkdir build && cd build
-cmake .. \
-  -DCMAKE_BUILD_TYPE=Release
-sudo cmake --build . -- -j$(nproc)
+meson setup build --prefix=/usr
+meson compile -C build
+meson install -C build
+
+mkdir nginx
+curl -Ls https://nginx.org/download/nginx-1.29.4.tar.gz | \
+  tar xzC nginx --strip-components=1
+cd nginx
+./configure --add-module=../ --with-http_ssl_module
+make -j$(nproc)
+make install
 ```

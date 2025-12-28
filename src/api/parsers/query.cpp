@@ -44,7 +44,6 @@ const TypeMap &type_map = {
     {"ro",      typeid(int)},
     {"flip",    typeid(bool)},
     {"flop",    typeid(bool)},
-    {"bri",     typeid(int)},
     {"mod",     typeid(std::vector<float>)},
     {"sat",     typeid(float)},
     {"hue",     typeid(int)},
@@ -54,6 +53,7 @@ const TypeMap &type_map = {
     {"sharpf",  typeid(float)},
     {"sharpj",  typeid(float)},
     {"trim",    typeid(int)},
+    {"tbg",     typeid(Color)},
     {"blur",    typeid(float)},
     {"filt",    typeid(FilterType)},
     {"start",   typeid(Color)},
@@ -80,8 +80,7 @@ const SynonymMap &synonym_map = {
     {"strim",    "mtrim"},  // &strim= was deprecated since API version 4
     {"or",       "ro"},     // &or= was deprecated since API version 5
     {"t",        "fit"},    // &t= was deprecated since API version 5
-    // TODO(kleisauke): Synonym this within a major release (since it breaks BC).
-    //{"bri",      "mod"},
+    {"bri",      "mod"},    // &bri= was deprecated since API version 5
     // Some handy synonyms
     {"pages",    "n"},
     {"width",    "w"},
@@ -222,7 +221,7 @@ void Query::add_value(const std::string &key, const std::string &value,
         auto params = tokenize<float>(value, ",", 3);
 
         // Brightness, saturation, hue
-        std::vector<std::string> keys = {/*"bri"*/key, "sat", "hue"};
+        std::vector<std::string> keys = {"bri", "sat", "hue"};
 
         for (size_t i = 0; i != params.size(); ++i) {
             /*keys[i] == "hue"*/ i == 2  // Hue needs to be cast to an integer

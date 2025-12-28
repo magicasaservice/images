@@ -10,7 +10,6 @@
 #include "processors/alignment.h"
 #include "processors/background.h"
 #include "processors/blur.h"
-#include "processors/brightness.h"
 #include "processors/contrast.h"
 #include "processors/crop.h"
 #include "processors/embed.h"
@@ -168,7 +167,6 @@ Status ApiManagerImpl::process(const std::string &query,
     auto crop = processors::Crop(query_holder, config);
     auto embed = processors::Embed(query_holder, config);
     auto rotation = processors::Rotation(query_holder, config);
-    auto brightness = processors::Brightness(query_holder, config);
     auto modulate = processors::Modulate(query_holder, config);
     auto contrast = processors::Contrast(query_holder, config);
     auto gamma = processors::Gamma(query_holder, config);
@@ -195,8 +193,8 @@ Status ApiManagerImpl::process(const std::string &query,
     }
 
     // Image processing phase 3 (adjustments, effects, etc.)
-    image = image | embed | rotation | brightness | modulate | contrast |
-            gamma | sharpen | filter | blur | tint | background | mask;
+    image = image | embed | rotation | modulate | contrast | gamma | sharpen |
+            filter | blur | tint | background | mask;
 
     // Write the image to a target
     stream.write_to_target(image, target);

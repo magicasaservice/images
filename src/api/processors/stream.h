@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../io/blob.h"
 #include "../io/source.h"
 #include "../io/target.h"
 #include "base.h"
@@ -40,15 +39,13 @@ class Stream {
      * @param image The source image.
      * @param n_pages Number of pages in the image.
      * @param source Source to read from.
-     * @param blob (Fallback-)blob to read from.
      * @param loader Image loader.
      * @param comp Comparison function object.
      * @return The largest/smallest page in the range [0, n_pages].
      */
     template <typename Comparator>
     int resolve_page(const VImage &image, int n_pages, const io::Source &source,
-                     const io::Blob &blob, const std::string &loader,
-                     Comparator comp) const;
+                     const std::string &loader, Comparator comp) const;
 
     /**
      * Get the page options to pass on to the load operation.
@@ -64,13 +61,11 @@ class Stream {
      *       It will throw a `UnreadableImageException` if an error occurs
      *       during loading.
      * @param source Source to read from.
-     * @param blob (Fallback-)blob to read from.
      * @param loader Image loader.
      * @param options Any options to pass on to the load operation.
      * @return A new `VImage`.
      */
     static VImage new_from_source(const io::Source &source,
-                                  const io::Blob &blob,
                                   const std::string &loader,
                                   vips::VOption *options);
 

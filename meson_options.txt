@@ -1,0 +1,9 @@
+option('cli',
+       type: 'boolean',
+       value: false,
+       description: 'Build the CLI utility')
+
+option('tests',
+       type: 'boolean',
+       value: false,
+       description: 'Build the unit tests')

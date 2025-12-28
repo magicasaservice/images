@@ -9,8 +9,7 @@ namespace weserv::api::exceptions {
  */
 class InvalidImageException : public std::runtime_error {
  public:
-    explicit InvalidImageException(const std::string &error)
-        : std::runtime_error(error) {}
+    using std::runtime_error::runtime_error;
 };
 
 }  // namespace weserv::api::exceptions

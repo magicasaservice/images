@@ -129,6 +129,8 @@ inline std::string determine_image_extension(const Output &output) {
     switch (output) {
         case Output::Jpeg:
             return ".jpg";
+        case Output::Jxl:
+            return ".jxl";
         case Output::Webp:
             return ".webp";
         case Output::Avif:
@@ -249,6 +251,8 @@ inline Output to_output(const ImageType &image_type) {
     switch (image_type) {
         case ImageType::Jpeg:
             return Output::Jpeg;
+        case ImageType::Jxl:
+            return Output::Jxl;
         case ImageType::Webp:
             return Output::Webp;
         case ImageType::Heif:
@@ -271,6 +275,9 @@ inline Output to_output(const ImageType &image_type) {
 inline ImageType determine_image_type(const std::string &loader) {
     if (loader.rfind("VipsForeignLoadJpeg", 0) == 0) {
         return ImageType::Jpeg;
+    }
+    if (loader.rfind("VipsForeignLoadJxl", 0) == 0) {
+        return ImageType::Jxl;
     }
     if (loader.rfind("VipsForeignLoadPng", 0) == 0) {
         return ImageType::Png;
@@ -309,6 +316,8 @@ inline std::string image_type_id(const ImageType &image_type) {
     switch (image_type) {
         case ImageType::Jpeg:
             return "jpeg";
+        case ImageType::Jxl:
+            return "jxl";
         case ImageType::Png:
             return "png";
         case ImageType::Webp:
@@ -339,8 +348,8 @@ inline std::string image_type_id(const ImageType &image_type) {
  */
 inline bool support_alpha_channel(const ImageType &image_type) {
     return image_type == ImageType::Png || image_type == ImageType::Webp ||
-           image_type == ImageType::Heif || image_type == ImageType::Tiff ||
-           image_type == ImageType::Gif;
+           image_type == ImageType::Heif || image_type == ImageType::Jxl ||
+           image_type == ImageType::Tiff || image_type == ImageType::Gif;
 }
 
 /**

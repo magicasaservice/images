@@ -23,10 +23,25 @@ TEST_CASE("trim", "[trim]") {
         CHECK_THAT(image, is_similar_image(expected_image));
     }
 
+    SECTION("background") {
+        auto test_image = fixtures->input_png_with_grey_alpha;
+        auto expected_image =
+            fixtures->expected_dir + "/grey-8bit-alpha-trim.png";
+        auto params = "tbg=0FFF&trim=25";
+
+        VImage image = process_file<VImage>(test_image, params);
+
+        CHECK(image.width() == 282);
+        CHECK(image.height() == 238);
+        CHECK(image.has_alpha());
+
+        CHECK_THAT(image, is_similar_image(expected_image));
+    }
+
     SECTION("16bit with transparency") {
         auto test_image = fixtures->input_png_with_transparency_16bit;
         auto expected_image = fixtures->expected_dir + "/trim-16bit-rgba.png";
-        auto params = "w=32&h=32&fit=cover&trim=10";
+        auto params = "w=32&h=32&fit=cover&tbg=0FFF&trim=10";
 
         VImage image = process_file<VImage>(test_image, params);
 
@@ -42,7 +57,7 @@ TEST_CASE("trim", "[trim]") {
         auto test_image = fixtures->input_jpg_overlay_layer_2;
         auto expected_image =
             fixtures->expected_dir + "/alpha-layer-2-trim-resize.jpg";
-        auto params = "w=300&trim=10";
+        auto params = "w=300&trim";
 
         VImage image = process_file<VImage>(test_image, params);
 
@@ -79,8 +94,8 @@ TEST_CASE("trim", "[trim]") {
     }
 
     SECTION("skip height in toilet-roll mode") {
-        if (vips_type_find("VipsOperation", "gifload_buffer") == 0 ||
-            vips_type_find("VipsOperation", "gifsave_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "gifload_source") == 0 ||
+            vips_type_find("VipsOperation", "gifsave_target") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }

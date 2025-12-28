@@ -75,7 +75,7 @@ class ApiManager {
     ApiManager() = default;
 };
 
-class ApiManagerFactory {
+class [[gnu::visibility("default")]] ApiManagerFactory {
  public:
     ApiManagerFactory() = default;
 

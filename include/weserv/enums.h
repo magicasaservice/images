@@ -13,7 +13,8 @@ enum class Output : uintptr_t {
     Tiff = 1U << 5,
     Gif = 1U << 6,
     Json = 1U << 7,
-    All = Jpeg | Png | Webp | Avif | Tiff | Gif | Json,  // 0xFE
+    Jxl = 1U << 8,
+    All = Jpeg | Png | Webp | Avif | Tiff | Gif | Json | Jxl,  // 0x1FE
 };
 
 inline constexpr Output operator&(Output x, Output y) {

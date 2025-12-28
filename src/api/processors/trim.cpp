@@ -4,13 +4,14 @@
 
 namespace weserv::api::processors {
 
+using parsers::Color;
+
 VImage Trim::process(const VImage &image) const {
     auto threshold = query_->get_if<int>(
         "trim",
         [](int t) {
-            // Threshold needs to be in the
-            // range of 1 - 254
-            return t >= 1 && t <= 254;
+            // Threshold must be in [1, 254], or -1 to use the default
+            return t == -1 || (t >= 1 && t <= 254);
         },
         0);
 
@@ -22,14 +23,41 @@ VImage Trim::process(const VImage &image) const {
         return image;
     }
 
-    // Find the value of the pixel at (0, 0), `find_trim` search for all pixels
-    // significantly different from this
-    auto background = image.extract_area(0, 0, 1, 1);
+    // Use default threshold of 10 if none is given
+    if (threshold == -1) {
+        threshold = 10;
+    }
 
-    // Note: If the image has alpha, we'll need to flatten before `getpoint`
-    // to get a correct background value
-    if (image.has_alpha()) {
-        background = background.flatten();
+    std::vector<double> trim_background;
+    if (query_->exists("tbg")) {
+        trim_background = query_->get<Color>("tbg").to_rgba();
+
+        if (utils::is_16_bit(image.interpretation())) {
+            for (auto &i : trim_background) {
+                i *= 256.0;
+            }
+        }
+
+        if (image.bands() < 3) {
+            // Convert sRGB to greyscale
+            trim_background = {0.2126 * trim_background[0] +
+                               0.7152 * trim_background[1] +
+                               0.0722 * trim_background[2]};
+        } else {
+            auto bands = image.has_alpha() ? image.bands() - 1 : image.bands();
+            trim_background.resize(bands, trim_background[3]);
+        }
+    } else {
+        // Top-left pixel provides the default background color if none is given
+        auto background = image.extract_area(0, 0, 1, 1);
+
+        // Note: If the image has alpha, we'll need to flatten before `getpoint`
+        // to get a correct background value
+        if (image.has_alpha()) {
+            background = background.flatten();
+        }
+
+        trim_background = background(0, 0);
     }
 
     // Scale up 8-bit values to match 16-bit input image
@@ -41,7 +69,7 @@ VImage Trim::process(const VImage &image) const {
     left = image.find_trim(&top, &width, &height,
                            VImage::option()
                                ->set("threshold", threshold)
-                               ->set("background", background(0, 0)));
+                               ->set("background", trim_background));
 
     // Sanity check, this usually happens when a high tolerance is specified
     if (width == 0 || height == 0) {

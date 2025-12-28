@@ -128,6 +128,9 @@ ngx_str_t extension_to_mime_type(const std::string &extension) {
     if (extension == ".avif") {
         return ngx_string("image/avif");
     }
+    if (extension == ".jxl") {
+        return ngx_string("image/jxl");
+    }
     if (extension == ".tiff") {
         return ngx_string("image/tiff");
     }

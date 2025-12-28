@@ -132,22 +132,16 @@ VImage Embed::process(const VImage &image) const {
             image_width, image_height, width, height, embed_position);
     }
 
-    std::vector<double> background = bg.to_rgba();
-    bool opaque = bg.is_opaque();
-    bool has_alpha = image.has_alpha();
-
-    // Ensure the background has the same number of bands as the image
-    if (opaque && !has_alpha) {
-        background.pop_back();
-    } else if (image.bands() > 4) {
-        background.insert(background.end(), image.bands() - 4, background[3]);
-    }
-
     // Internal copy to ensure that the image has an alpha channel, if missing
     auto output_image =
-        opaque || has_alpha
+        bg.is_opaque() || image.has_alpha()
             ? image
             : image.bandjoin_const({255});  // Assumes images are always 8-bit
+
+    std::vector<double> background = bg.to_rgba();
+
+    // Ensure the background has the same number of bands as the image
+    background.resize(output_image.bands(), background[3]);
 
     return n_pages > 1
                ? embed_multi_page(output_image, left, top, width, height,

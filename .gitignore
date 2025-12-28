@@ -40,19 +40,6 @@
 ### CLion ###
 .idea/
 
-### CMake ###
-*.cbp
-bin/*
-lib/
-build/
-cmake-build-debug/
-cmake-build-release/
-CMakeFiles/
-CMakeCache.txt
-Makefile
-cmake_install.cmake
-CTestTestfile.cmake
-
 # Test::Nginx
 servroot/
 

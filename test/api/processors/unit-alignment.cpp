@@ -223,8 +223,8 @@ TEST_CASE("attention crop", "[alignment]") {
 }
 
 TEST_CASE("animated image", "[alignment]") {
-    if (vips_type_find("VipsOperation", "gifload_buffer") == 0 ||
-        vips_type_find("VipsOperation", "gifsave_buffer") == 0) {
+    if (vips_type_find("VipsOperation", "gifload_source") == 0 ||
+        vips_type_find("VipsOperation", "gifsave_target") == 0) {
         SUCCEED("no gif support, skipping test");
         return;
     }

@@ -7,7 +7,7 @@ using Catch::Matchers::ContainsSubstring;
 
 TEST_CASE("too large image", "[large]") {
     SECTION("input") {
-        if (vips_type_find("VipsOperation", "svgload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "svgload_source") == 0) {
             SUCCEED("no svg support, skipping test");
             return;
         }
@@ -40,7 +40,7 @@ TEST_CASE("too large image", "[large]") {
 
 TEST_CASE("too many pages", "[large]") {
     SECTION("input") {
-        if (vips_type_find("VipsOperation", "gifload_buffer") == 0) {
+        if (vips_type_find("VipsOperation", "gifload_source") == 0) {
             SUCCEED("no gif support, skipping test");
             return;
         }
